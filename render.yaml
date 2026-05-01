@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: lazyshop-backend
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+  - type: worker
+    name: lazyshop-telegram-bot
+    runtime: python
+    rootDir: backend
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python telegram_bot.py
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: BACKEND_HOSTPORT
+        fromService:
+          type: web
+          name: lazyshop-backend
+          property: hostport
